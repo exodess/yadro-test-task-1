@@ -24,7 +24,6 @@ private:
     Person person_;
 
 public:
-    Dungeon();
     // Чтение мира из файла
     void loadWorld(std::string path);
 };
