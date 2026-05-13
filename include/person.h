@@ -24,22 +24,21 @@ private:
     Resources resources_;
     num count_foods_;
     num current_room_ = 0;
-    bool is_collected_ = false; // Смотрит, когда
-
-    // Смерть персонажа - оповещение программы и ее завершение
-    void death() noexcept;
 
 public:
     Person() noexcept;
     // В начале известны только целевой ресурс и количество еды
     explicit Person(num foods) noexcept;
+    void result(Resources& costs) noexcept; // расчет результата исходя из текущих расценок ресурсов
 
     // Вход в комнату
     void enter(Room& next_room) noexcept;
     // Сборка персонажем определенного ресурса в текущей пещере, где он находится
-    void collect(const Room& current_room, std::string target) noexcept;
+    void collect(Room& current_room, const std::string& target) noexcept;
 
-    num currentRoomIndex() const noexcept;
+    num getCurrentRoomNumber() const noexcept;
+    num getCurrentCountFoods() const noexcept;
+    bool isAlive() const noexcept;
 };
 
 #endif
