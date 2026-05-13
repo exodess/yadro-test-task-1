@@ -2,6 +2,8 @@
 #define RESOURCES_H
 
 #include <cstdint>
+#include <map>
+#include <iostream>
 
 // Ценности каждого ресурса в у.е
 #define DEFAULT_IRON_COST 7
@@ -16,22 +18,26 @@ using num = uint8_t;
 // Класс для хранения игровых ресурсов
 class Resources {
 private:
-    num iron_;
-    num gold_;
-    num gems_;
-    num exp_;
+    std::map<std::string, num> resources_;
 
 public:
-    Resources() noexcept : iron_(0), gold_(0), gems_(0), exp_(0) {}
+    Resources() noexcept : Resources(0, 0, 0, 0) {}
 
-    Resources(num iron, num gold, num gems, num exp) noexcept
-    : iron_(iron), gold_(gold), gems_(gems), exp_(exp) {}
+    Resources(num iron, num gold, num gems, num exp) noexcept {
+        resources_.insert(std::make_pair("iron", iron));
+        resources_.insert(std::make_pair("gold", gold));
+        resources_.insert(std::make_pair("gems", gems));
+        resources_.insert(std::make_pair("exp", exp));
+    }
 
-    // Поля доступа к приватным членам класса
-    num& iron() noexcept { return iron_; }
-    num& gems() noexcept { return gems_; }
-    num& gold() noexcept { return gold_; }
-    num& exp() noexcept { return exp_; }
+    // Поле доступа к приватным членам класса через []
+    num& operator[](const std::string& name) noexcept {
+        if (!resources_.contains(name)) {
+            throw std::logic_error("Resource " + name + "don't exists");
+        }
+
+        return resources_[name];
+    }
 };
 
 #endif

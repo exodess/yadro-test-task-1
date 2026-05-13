@@ -1,12 +1,15 @@
 #include "room.h"
 
+#include <ext/concurrence.h>
+
 Room::Room(num id, Resources resources) : id_(id), resources_(resources) {
 #ifdef DEBUG
-    std::cout << "[Room: Constructor] ID = " << id_;
-    std::cout << ", iron = " << resources_.iron();
-    std::cout << ", gold = " << resources_.gold();
-    std::cout << ", gems = " << resources_.gems();
-    std::cout << ", exp = " << resources_.exp();
+    std::cout << "[Room: Constructor] ID = " << static_cast<int>(id_);
+    std::cout << ", iron = " << static_cast<int>(resources_["iron"]);
+    std::cout << ", gold = " << static_cast<int>(resources_["gold"]);
+    std::cout << ", gems = " << static_cast<int>(resources_["gems"]);
+    std::cout << ", exp = " << static_cast<int>(resources_["exp"]);
+    std::cout << std::endl;
 #endif
 }
 
@@ -19,24 +22,9 @@ num Room::getId() const noexcept {
 }
 
 num Room::takeResource(const std::string& target) noexcept {
-    num result = 0;
-
-    if (target == "iron") {
-        result = resources_.iron();
-        resources_.iron() = 0;
-    }
-    else if (target == "gold" ) {
-        result = resources_.gold();
-        resources_.gold() = 0;
-    }
-    else if (target == "gems") {
-        result = resources_.gems();
-        resources_.gems() = 0;
-    }
-    else if (target == "exp") {
-        result = resources_.exp();
-        resources_.exp() = 0;
-    }
+    num result = resources_[target];
+    resources_[target] = 0;
+    collected_list_[target] = true;
 
     getState();
 
@@ -52,13 +40,38 @@ bool Room::isVisited() const noexcept {
     return is_visited_;
 }
 
+bool Room::isCollected() const noexcept {
+    return !collected_list_.empty();
+}
+
 void Room::getState() noexcept {
     // Выводим состояния для всех комнат, кроме начальной
     if (id_) {
-        std::cout << "state " << id_ << " ";
-        std::cout << ((resources_.iron()) ? resources_.iron() : "_") << " ";
-        std::cout << ((resources_.gold()) ? resources_.gold() : "_") << " ";
-        std::cout << ((resources_.gems()) ? resources_.gems() : "_") << " ";
-        std::cout << ((resources_.exp()) ? resources_.exp() : "_") << " ";
+        std::cout << "state " << static_cast<int>(id_) << " ";
+
+        // Если персонаж забрал ресурс, будет отображаться "_"
+        if (!collected_list_.count("iron")) {
+            std::cout << static_cast<int>(resources_["iron"]) << " ";
+        } else {
+            std::cout << "_ ";
+        }
+
+        if (!collected_list_.contains("gold")) {
+            std::cout << static_cast<int>(resources_["gold"]) << " ";
+        } else {
+            std::cout << "_ ";
+        }
+
+        if (!collected_list_.contains("gems")) {
+            std::cout << static_cast<int>(resources_["gems"]) << " ";
+        } else {
+            std::cout << "_ ";
+        }
+
+        if (!collected_list_.contains("exp")) {
+            std::cout << static_cast<int>(resources_["exp"]) << std::endl;
+        } else {
+            std::cout << "_" << std::endl;
+        }
     }
 }
