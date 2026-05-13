@@ -1,22 +1,34 @@
 #ifndef GAMEWORLD_H
 #define GAMEWORLD_H
-#include "dungeon.h"
+#include <map>
+
+#include "room.h"
+#include "person.h"
+#include <vector>
 
 // Главный класс игры, представляющий из себя игровой мир
 // Хранит в себе информацию о пещерах и игровом персонаже, который по этим пещерам перемещается
 
 // Связи между пещерами представлены в виде двунаправленного графа,
-// в узлах которого находится объект класса Dungeon, хранящий информацию о конкретной пещере
+// в узлах которого находится объект класса Room, хранящий информацию о конкретной пещере
 
+// Сам граф представлен в пямяти следующим образом:
+// При считывании комнат подземелья, сохраняем их в отдельный список rooms_list_
+// Их смежности между друг другом сохраняем в список смежности adjacency_list_,
+// который представляет собой список пар индексов вершин (комнат), которые хранятся в rooms_list_
 
-class GameWorld {
+class Dungeon {
 private:
-    std::vector<Dungeon> dungeons_network_;
+    std::vector<Room> rooms_list_;
+    std::vector<std::map<num, num>> adjacency_list_;
     Person person_;
 
 public:
+    Dungeon();
     // Чтение мира из файла
-    void LoadWorld(std::string path) noexcept;
+    void loadWorld(std::string path);
 };
+
+
 
 #endif
