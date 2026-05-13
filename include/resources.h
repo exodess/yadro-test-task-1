@@ -4,10 +4,10 @@
 #include <cstdint>
 
 // Ценности каждого ресурса в у.е
-#define IRON_COST 7
-#define GOLD_COST 11
-#define GEMS_COST 23
-#define EXP_COST 1
+#define DEFAULT_IRON_COST 7
+#define DEFAULT_GOLD_COST 11
+#define DEFAULT_GEMS_COST 23
+#define DEFAULT_EXP_COST 1
 
 // Все игровые значения в пределах [0, 255],
 // поэтому можно использовать 8-битное беззнаковое число для их хранения
@@ -32,13 +32,6 @@ public:
     num& gems() noexcept { return gems_; }
     num& gold() noexcept { return gold_; }
     num& exp() noexcept { return exp_; }
-};
-
-enum ASSETS {
-    IRON = 0,
-    GOLD,
-    GEMS,
-    EXP
 };
 
 #endif
