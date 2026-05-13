@@ -1,5 +1,5 @@
-#ifndef RESOURSES_H
-#define RESOURSES_H
+#ifndef RESOURCES_H
+#define RESOURCES_H
 
 #include <cstdint>
 
@@ -14,7 +14,7 @@
 using num = uint8_t;
 
 // Класс для хранения игровых ресурсов
-class Resourses {
+class Resources {
 private:
     num iron_;
     num gold_;
@@ -22,9 +22,9 @@ private:
     num exp_;
 
 public:
-    Resourses() noexcept : iron_(0), gold_(0), gems_(0), exp_(0) {}
+    Resources() noexcept : iron_(0), gold_(0), gems_(0), exp_(0) {}
 
-    Resourses(num iron, num gold, num gems, num exp) noexcept
+    Resources(num iron, num gold, num gems, num exp) noexcept
     : iron_(iron), gold_(gold), gems_(gems), exp_(exp) {}
 
     // Поля доступа к приватным членам класса
