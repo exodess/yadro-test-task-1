@@ -14,23 +14,51 @@ const Resources& Room::getResources() const noexcept {
     return resources_;
 }
 
-num Room::giveResource(ASSETS target) noexcept {
+num Room::getId() const noexcept {
+    return id_;
+}
+
+num Room::takeResource(const std::string& target) noexcept {
     num result = 0;
 
-    switch (target) {
-        case ASSETS::IRON:
-            result = resources_.iron();
-            resources_.iron() = 0;
-        case ASSETS::GOLD:
-            result = resources_.gold();
-            resources_.gold() = 0;
-        case ASSETS::GEMS:
-            result = resources_.gems();
-            resources_.gems() = 0;
-        case ASSETS::EXP:
-            result = resources_.exp();
-            resources_.exp() = 0;
+    if (target == "iron") {
+        result = resources_.iron();
+        resources_.iron() = 0;
+    }
+    else if (target == "gold" ) {
+        result = resources_.gold();
+        resources_.gold() = 0;
+    }
+    else if (target == "gems") {
+        result = resources_.gems();
+        resources_.gems() = 0;
+    }
+    else if (target == "exp") {
+        result = resources_.exp();
+        resources_.exp() = 0;
     }
 
+    getState();
+
     return result;
+}
+
+void Room::visite() noexcept {
+    is_visited_ = true;
+    getState();
+}
+
+bool Room::isVisited() const noexcept {
+    return is_visited_;
+}
+
+void Room::getState() noexcept {
+    // Выводим состояния для всех комнат, кроме начальной
+    if (id_) {
+        std::cout << "state " << id_ << " ";
+        std::cout << ((resources_.iron()) ? resources_.iron() : "_") << " ";
+        std::cout << ((resources_.gold()) ? resources_.gold() : "_") << " ";
+        std::cout << ((resources_.gems()) ? resources_.gems() : "_") << " ";
+        std::cout << ((resources_.exp()) ? resources_.exp() : "_") << " ";
+    }
 }
