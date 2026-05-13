@@ -7,50 +7,59 @@
 Person::Person() noexcept : Person(0) {}
 
 // Создаем персонажа с заданными характеристиками
-Person::Person(num foods) noexcept
-: count_foods_(foods)
-{
+Person::Person(num foods) noexcept : count_foods_(foods){
 #ifdef DEBUG
     std::cout << "[Person::Person] Constructor called:";
-    std::cout << " target_resource_ = " << target_resource_;
-    std::cout << ", count_foods_ = " << count_foods_ << std::endl;
+    std::cout << " count_foods_ = " << static_cast<int>(count_foods_) << std::endl;
 #endif
 }
 
-void Person::death() noexcept {
-    std::cout << "result " << resources_.iron() << " " << resources_.gold();
-    std::cout << " " << resources_.gems() << " " << resources_.exp() << std::endl;
-}
+void Person::result(Resources& costs) noexcept {
+    std::cout << "result " << static_cast<int>(resources_["iron"]) << " ";
+    std::cout << static_cast<int>(resources_["gold"]) << " ";
+    std::cout << static_cast<int>(resources_["gems"]) << " ";
+    std::cout << static_cast<int>(resources_["exp"]) << " ";
 
+    int sum = resources_["iron"] * costs["iron"] +
+            resources_["gold"] * costs["gold"] +
+            resources_["gems"] * costs["gems"] +
+            resources_["exp"] * costs["exp"];
+
+    std::cout << sum << std::endl;
+
+}
 
 void Person::enter(Room& next_room) noexcept {
     current_room_ = next_room.getId();
+    std::cout << "go " << static_cast<int>(current_room_) << std::endl;
     next_room.visite();
 
-    if (current_room_) {
-        std::cout << "go " << current_room_ << std::endl;
-    }
-
-    is_collected_ = false;
-    if (count_foods_--) {
-        death();
-    }
-
+    count_foods_--;
 }
 
-void Person::collect(const Room& current_room, std::string name_resource) noexcept {
+void Person::collect(Room& current_room, const std::string& name_resource) noexcept {
 
-    std::cout << "collect " << name_resource;
-    if (is_collected_) {
-        std::cout << " [repeat]";
+    num count_resources = 0;
+
+    std::cout << "collect " << name_resource << std::endl;
+    // Проверяем, брал ли персонаж в этой комнате ресурсы, или нет
+    if (current_room.isCollected()) {
         count_foods_--;
     }
-    is_collected_ = true;
-    std::cout << std::endl;
+
+    // Прибавляем количество определенного ресурса, который персонаж забрал из текущей комнаты, к общему количеству
+    resources_[name_resource] += current_room.takeResource(name_resource);
 }
 
-num Person::currentRoomIndex() const noexcept {
+num Person::getCurrentRoomNumber() const noexcept {
     return current_room_;
 }
 
+num Person::getCurrentCountFoods() const noexcept {
+    return count_foods_;
+}
+
+bool Person::isAlive() const noexcept {
+    return count_foods_ > 0;
+}
 
