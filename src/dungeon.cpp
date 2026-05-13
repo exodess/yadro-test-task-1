@@ -1,10 +1,13 @@
-#include "gameworld.h"
+#include "dungeon.h"
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
+#include <charconv>
 
-void Dungeon::loadWorld(std::string path) {
+Dungeon::Dungeon() noexcept : person_(Person()) {}
+
+void Dungeon::loadDungeon(std::string path) {
     std::ifstream settings_file;
     std::string line;
     std::stringstream ss;
@@ -70,8 +73,7 @@ void Dungeon::loadWorld(std::string path) {
         adjacency_list_.push_back({vertex_id, vertex_list});
     }
 
-    // Последняя строка - информация об игроке: количество еды и название целевого ресурса
-
+    // Считываем количество еды у персонажа и создаем его
     std::getline(settings_file, line);
     ss = std::stringstream(line);
 
@@ -79,10 +81,79 @@ void Dungeon::loadWorld(std::string path) {
     if (ss >> member_line) {
         std::from_chars(member_line.data(), member_line.data() + member_line.size(), count_foods);
     }
+    person_ = Person(count_foods);
 
+    // В конце - целевой ресурс, т.е его стоимость увеличена в 2 раза
     ss >> member_line;
-    person_ = Person(member_line, count_foods);
-
+    if (member_line == "iron") resources_.iron() *= 2;
+    else if (member_line == "gold") resources_.gold() *= 2;
+    else if (member_line == "gems") resources_.gems() *= 2;
+    else if (member_line == "exp") resources_.exp() *= 2;
+    else {
+        throw std::logic_error(line);
+    }
 
     settings_file.close();
+}
+
+const Room &Dungeon::getRoom(num room_index) const {
+    if (room_index >= rooms_list_.size()) {
+        throw std::out_of_range("Room number out of range: " + room_index);
+    }
+
+    return rooms_list_[room_index];
+}
+
+std::vector<num> Dungeon::getAdjacencyList(num room_index) const noexcept {
+    std::vector<num> adj_rooms {};
+
+    // Сохраняем все смежные с данной комнатой вершины
+    for (auto adj : adjacency_list_) {
+        if (adj.first == room_index) {
+            adj_rooms.push_back(adj.second);
+        }
+    }
+
+    return adj_rooms;
+}
+
+RoomInfo Dungeon::getRoomInfo(num room_index) const noexcept {
+    // Получаем список индексов комнат, которые являются смежными с номером room_index
+    auto adj_rooms = getAdjacencyList(room_index);
+
+    // Проверяем, посещалась ли эта комната
+    if (visits_.contains(room_index)) {
+        auto res = rooms_list_[room_index].getResources();
+
+        return RoomInfo(room_index, adj_rooms, res);
+    }
+
+    // Если комната не посещалась, то возможно она является видимой,
+    // т.е смежной с одной из посещенных комнат
+    for (auto index : adj_rooms) {
+        if (visits_.contains(index)) {
+            return RoomInfo(room_index, adj_rooms);
+        }
+    }
+
+    return RoomInfo(room_index);
+}
+
+num Dungeon::getCost(const std::string &resource_name) noexcept {
+    if (resource_name == "iron") {
+        return resources_.iron();
+    }
+    else if (resource_name == "gold") {
+        return resources_.gold();
+    }
+    else if (resource_name == "gems") {
+        return resources_.gems();
+    }
+    else if (resource_name == "exp") {
+        return resources_.exp();
+    }
+
+    else {
+        throw std::logic_error("Cannot found resource name: " + resource_name);
+    }
 }
