@@ -12,6 +12,7 @@ void Dungeon::loadDungeon(std::string path) {
     std::string line;
     std::stringstream ss;
     std::string member_line;
+    std::string temp;
     num N = 0;
 
     settings_file.open(path);
@@ -26,19 +27,14 @@ void Dungeon::loadDungeon(std::string path) {
     ss = std::stringstream(line);
 
     ss >> member_line;
-    if (member_line != line) {
-        std::cout << line;
-        return;
-    }
-
     std::from_chars(member_line.data(), member_line.data() + member_line.size(), N);
 
     // Считываем N+1 строк с информацией о каждой комнате
     // Формат строки: <номер_вершины> <список_смежных_вершин> <iron> <gold> <gems> <exp>
     for (auto i = 0; i <= N; i++) {
         Resources resources;
-        num vertex_id;
-        num vertex_list;
+        num vertex_id = 0;
+        std::vector<num> vertex_list {};
 
         std::getline(settings_file, line);
         ss = std::stringstream(line);
@@ -49,28 +45,38 @@ void Dungeon::loadDungeon(std::string path) {
         }
 
         // Второй параметр - список смежных вершин
-        if (ss >> member_line) {
-            std::from_chars(member_line.data(), member_line.data() + member_line.size(), vertex_list);
+        ss >> member_line;
+        while (!member_line.empty()) {
+            num ind;
+
+            std::getline(std::stringstream(member_line), temp, ',');
+            std::from_chars(temp.data(), temp.data() + temp.size(), ind);
+            member_line = (member_line.find(',') != std::string::npos) ? member_line.substr(member_line.find(',') + 1) : "";
+            vertex_list.push_back(ind);
         }
 
         std::vector<num> resources_cost;
         resources_cost.reserve(4);
         for (auto j = 0; j < 4; j++) {
+            num count = 0;
             ss >> member_line;
-            std::from_chars(member_line.data(), member_line.data() + member_line.size(), resources_cost[j]);
+            std::from_chars(member_line.data(), member_line.data() + member_line.size(), count);
+            resources_cost[j] = count;
         }
 
-        resources.iron() = resources_cost[0];
-        resources.gold() = resources_cost[1];
-        resources.gems() = resources_cost[2];
-        resources.exp() = resources_cost[3];
+        resources["iron"] = resources_cost[0];
+        resources["gold"] = resources_cost[1];
+        resources["gems"] = resources_cost[2];
+        resources["exp"] = resources_cost[3];
 
         // Создаем комнату и сохраняем ее в списке комнат Dungeon
         auto current_room = Room(vertex_id, resources);
         rooms_list_.push_back(current_room);
 
         // Добавляем новую пару смежностей
-        adjacency_list_.push_back({vertex_id, vertex_list});
+        for(auto v : vertex_list) {
+            adjacency_list_.push_back({vertex_id, v});
+        }
     }
 
     // Считываем количество еды у персонажа и создаем его
@@ -85,20 +91,16 @@ void Dungeon::loadDungeon(std::string path) {
 
     // В конце - целевой ресурс, т.е его стоимость увеличена в 2 раза
     ss >> member_line;
-    if (member_line == "iron") resources_.iron() *= 2;
-    else if (member_line == "gold") resources_.gold() *= 2;
-    else if (member_line == "gems") resources_.gems() *= 2;
-    else if (member_line == "exp") resources_.exp() *= 2;
-    else {
-        throw std::logic_error(line);
-    }
+    prices_[member_line] *= 2;
+
+    getRoom(0).visite(); // В начальный момент персонаж находится в комнате 0
 
     settings_file.close();
 }
 
-const Room &Dungeon::getRoom(num room_index) const {
+Room &Dungeon::getRoom(num room_index) {
     if (room_index >= rooms_list_.size()) {
-        throw std::out_of_range("Room number out of range: " + room_index);
+        throw std::out_of_range("Room number out of range");
     }
 
     return rooms_list_[room_index];
@@ -139,21 +141,25 @@ RoomInfo Dungeon::getRoomInfo(num room_index) const noexcept {
     return RoomInfo(room_index);
 }
 
-num Dungeon::getCost(const std::string &resource_name) noexcept {
-    if (resource_name == "iron") {
-        return resources_.iron();
-    }
-    else if (resource_name == "gold") {
-        return resources_.gold();
-    }
-    else if (resource_name == "gems") {
-        return resources_.gems();
-    }
-    else if (resource_name == "exp") {
-        return resources_.exp();
-    }
-
-    else {
-        throw std::logic_error("Cannot found resource name: " + resource_name);
-    }
+const Resources& Dungeon::getCosts() const noexcept {
+    return prices_;
 }
+
+Resources &Dungeon::getCosts() noexcept {
+    return prices_;
+}
+
+
+Person& Dungeon::getPerson() noexcept {
+    return person_;
+}
+
+num Dungeon::getCountRooms() const noexcept {
+    return rooms_list_.size();
+}
+
+num Dungeon::getCountPaths() const noexcept {
+    // В списке смежностей хранятся пары в двух направлениях
+    return adjacency_list_.size() / 2;
+}
+

@@ -47,19 +47,24 @@ private:
     std::vector<std::pair<num, num>> adjacency_list_;
     std::set<num> visits_;
     Person person_;
-    Resources resources_ = Resources(DEFAULT_IRON_COST, DEFAULT_GOLD_COST, DEFAULT_GEMS_COST, DEFAULT_EXP_COST);
+    Resources prices_ = Resources(DEFAULT_IRON_COST, DEFAULT_GOLD_COST, DEFAULT_GEMS_COST, DEFAULT_EXP_COST);
 
 public:
     Dungeon() noexcept;
     // Чтение мира из файла
     void loadDungeon(std::string path);
 
-    const Room& getRoom(num room_index) const;
+    Room& getRoom(num room_index);
     std::vector<num> getAdjacencyList(num room_index) const noexcept; // получаем список соседних комнат, в которые персонаж может попасть
     RoomInfo getRoomInfo(num room_index) const noexcept;
 
-    // Метод для получения информации о стоимости конкретного ресурса
-    num getCost(const std::string& resource_name) noexcept;
+    // Получение информации о стоимости всех ресурсов
+    const Resources& getCosts() const noexcept;
+    Resources& getCosts() noexcept;
+
+    Person& getPerson() noexcept;
+    num getCountRooms() const noexcept;
+    num getCountPaths() const noexcept;
 };
 
 #endif
