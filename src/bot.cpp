@@ -42,7 +42,7 @@ void AliseBot::start() {
 
             // Вычисляем глубину текущей вершины в графе, если она меньше чем оставшееся количество еды,
             // то значит можно потратить еду на
-            if (path.size() < person.getCurrentCountFoods()) {
+            if ((path.size() - 1) < person.getCurrentCountFoods()) {
                 auto res = dungeon_.getRoom(person.getCurrentRoomNumber()).getResources();
                 auto result = getMostExpensiveResource(res, dungeon_.getCosts());
 
@@ -102,7 +102,7 @@ std::vector<num> AliseBot::getShortestPath(num start_num, num end_num) noexcept 
 
         for (num adj : dungeon_.getAdjacencyList(v)) {
             // Назад персонаж должен идти по пройденным комнатам
-            if (d[adj] == UINT8_MAX && dungeon_.getRoom(adj).isVisited()) {
+            if (d[adj] == UINT8_MAX && (dungeon_.getRoom(adj).isVisited() || adj == end_num)) {
                 d[adj] = d[v] + 1;
                 p[adj] = v;
                 q.push(adj);
@@ -115,8 +115,6 @@ std::vector<num> AliseBot::getShortestPath(num start_num, num end_num) noexcept 
         result_path.push_back(v);
     }
     std::reverse(result_path.begin(), result_path.end());
-
-    // std::sort(begin(d), end(d));
 
     return result_path;
 }
