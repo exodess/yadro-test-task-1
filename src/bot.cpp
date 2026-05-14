@@ -6,6 +6,9 @@ AliseBot::AliseBot(const std::string& input_file) noexcept
 : BaseBot(input_file) {}
 
 void AliseBot::start() {
+
+    dungeon_.loadDungeon(input_file_);
+    
     auto person = dungeon_.getPerson();
     auto initial_count_foods = person.getCurrentCountFoods();
 

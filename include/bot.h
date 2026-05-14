@@ -12,10 +12,9 @@
 class BaseBot {
 protected:
     Dungeon dungeon_;
+    std::string input_file_;
 public:
-    explicit BaseBot(const std::string& input_file) noexcept {
-        dungeon_.loadDungeon(input_file);
-    }
+    explicit BaseBot(const std::string& input_file) noexcept : input_file_(input_file) {}
 
     virtual void start() = 0;
     virtual ~BaseBot() = default;
