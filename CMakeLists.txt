@@ -11,8 +11,9 @@ file(GLOB txt_files "tests/*.txt")
 file(COPY ${txt_files}
         DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
-add_executable(${PROJECT_NAME} ${src_files})
-add_compile_definitions(${PROJECT_NAME} DEBUG)
+add_executable(${PROJECT_NAME} ${src_files} main.cpp)
+add_compile_definitions(${PROJECT_NAME})
+add_compile_definitions(${PROJECT_NAME} -DINPUT_FILE_PATH="in1_success.txt")
 
 # тестирование с помощью GoogleTest
 find_package(GTest REQUIRED)
