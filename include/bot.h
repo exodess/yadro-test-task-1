@@ -22,10 +22,14 @@ public:
 
 class AliseBot : public ::BaseBot {
 public:
+    explicit AliseBot(const std::string& input_file) noexcept;
+
     std::string getMostExpensiveResource(Resources volumes, Resources costs) noexcept;
     std::vector<num> getShortestPath(num from, num to) noexcept;
 
-    explicit AliseBot(const std::string& input_file) noexcept;
+    // Реализация разных фаз работы бота
+    void setResearchPhase(Person&);
+    void setReturnPhase(Person&);
 
     // Здесь располагается логика управления персонажем
     void start() override;

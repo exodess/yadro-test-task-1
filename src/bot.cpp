@@ -8,26 +8,53 @@ AliseBot::AliseBot(const std::string& input_file) noexcept
 void AliseBot::start() {
 
     dungeon_.loadDungeon(input_file_);
-    
     auto person = dungeon_.getPerson();
+
+    setResearchPhase(person);
+    setReturnPhase(person);
+
+    person.result(dungeon_.getCosts());
+}
+
+void AliseBot::setResearchPhase(Person& person) {    
     auto initial_count_foods = person.getCurrentCountFoods();
+    
+    // Фаза исследования
+    while (person.getCurrentCountFoods() > initial_count_foods / 2) {
+        // Переходим в комнату с наименьшим номером
+        auto avialable_rooms = dungeon_.getAdjacencyList(person.getCurrentRoomNumber());
 
-    while (person.isAlive()) {
-        // Фаза исследования
-        if (person.getCurrentCountFoods() > initial_count_foods / 2) {
-            // Переходим в комнату с наименьшим номером
-            auto avialable_rooms = dungeon_.getAdjacencyList(person.getCurrentRoomNumber());
-
-            // Номера комнат хранятся в отсортированном виде,
-            // поэтому необходимо найти лишь первый свободный индекс
-            for (auto num : avialable_rooms) {
-                if (!dungeon_.getRoom(num).isVisited() && num) {
-                    person.enter(dungeon_.getRoom(num));
-                    break;
-                }
+        // Номера комнат хранятся в отсортированном виде,
+        // поэтому необходимо найти лишь первый свободный индекс
+        for (auto num : avialable_rooms) {
+            if (!dungeon_.getRoom(num).isVisited() && num) {
+                person.enter(dungeon_.getRoom(num));
+                break;
             }
+        }
 
-            // Забираем самый ценный ресурс в комнате (в первый раз еда не тратится)
+        // Забираем самый ценный ресурс в комнате (в первый раз еда не тратится)
+        auto res = dungeon_.getRoom(person.getCurrentRoomNumber()).getResources();
+        auto result = getMostExpensiveResource(res, dungeon_.getCosts());
+
+        if (!result.empty()) {
+            person.collect(dungeon_.getRoom(person.getCurrentRoomNumber()), result);
+        }
+
+    }
+}
+
+void AliseBot::setReturnPhase(Person& person) {
+    // Фаза возвращения
+    while(person.isAlive()) {
+        // Выбираем кратчайший маршрут до начальной вершины.
+        // Нужно учитывать, что путь составляется на основе того, про какие комнаты в подземелье он знает,
+        // т.е изначально схема подземелья ему неизвестна и поясняется в результате прохождения по комнатам
+        auto path = getShortestPath(person.getCurrentRoomNumber(), 0);
+
+        // Вычисляем глубину текущей вершины в графе, если она меньше чем оставшееся количество еды,
+        // то значит можно потратить еду на
+        if ((path.size() - 1) < person.getCurrentCountFoods()) {
             auto res = dungeon_.getRoom(person.getCurrentRoomNumber()).getResources();
             auto result = getMostExpensiveResource(res, dungeon_.getCosts());
 
@@ -35,33 +62,12 @@ void AliseBot::start() {
                 person.collect(dungeon_.getRoom(person.getCurrentRoomNumber()), result);
             }
 
+            continue;
         }
-        // Фаза возвращения
-        else {
-            // Выбираем кратчайший маршрут до начальной вершины.
-            // Нужно учитывать, что путь составляется на основе того, про какие комнаты в подземелье он знает,
-            // т.е изначально схема подземелья ему неизвестна и поясняется в результате прохождения по комнатам
-            auto path = getShortestPath(person.getCurrentRoomNumber(), 0);
 
-            // Вычисляем глубину текущей вершины в графе, если она меньше чем оставшееся количество еды,
-            // то значит можно потратить еду на
-            if ((path.size() - 1) < person.getCurrentCountFoods()) {
-                auto res = dungeon_.getRoom(person.getCurrentRoomNumber()).getResources();
-                auto result = getMostExpensiveResource(res, dungeon_.getCosts());
-
-                if (!result.empty()) {
-                    person.collect(dungeon_.getRoom(person.getCurrentRoomNumber()), result);
-                }
-
-                continue;
-            }
-
-            // Переходим на одну вершину ближе к начальной точке
-            person.enter(dungeon_.getRoom(path[1]));
-        }
+        // Переходим на одну вершину ближе к начальной точке
+        person.enter(dungeon_.getRoom(path[1]));
     }
-
-    person.result(dungeon_.getCosts());
 }
 
 // Ищем самый дорогой ресурс из всех и возвращаем его название
