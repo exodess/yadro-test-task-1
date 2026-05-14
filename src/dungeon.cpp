@@ -55,6 +55,7 @@ void Dungeon::loadDungeon(std::string path) {
             vertex_list.push_back(ind);
         }
 
+        // Остальные четыре параметра - количество каждого ресурса в комнате
         std::vector<num> resources_cost;
         resources_cost.reserve(4);
         for (auto j = 0; j < 4; j++) {
@@ -73,10 +74,8 @@ void Dungeon::loadDungeon(std::string path) {
         auto current_room = Room(vertex_id, resources);
         rooms_list_.push_back(current_room);
 
-        // Добавляем новую пару смежностей
-        for(auto v : vertex_list) {
-            adjacency_list_.push_back({vertex_id, v});
-        }
+        // Добавляем новую пару смежностей в виде <номер_вершины> : { список смежных вершин }
+        adjacency_list_.push_back({vertex_id, vertex_list});
     }
 
     // Считываем количество еды у персонажа и создаем его
@@ -106,17 +105,24 @@ Room &Dungeon::getRoom(num room_index) {
     return rooms_list_[room_index];
 }
 
+const Room &Dungeon::getRoom(num room_index) const {
+    if (room_index >= rooms_list_.size()) {
+        throw std::out_of_range("Room number out of range");
+    }
+
+    return rooms_list_[room_index];
+}
+
 std::vector<num> Dungeon::getAdjacencyList(num room_index) const noexcept {
-    std::vector<num> adj_rooms {};
 
     // Сохраняем все смежные с данной комнатой вершины
     for (auto adj : adjacency_list_) {
         if (adj.first == room_index) {
-            adj_rooms.push_back(adj.second);
+            return adj.second;
         }
     }
 
-    return adj_rooms;
+    return {};
 }
 
 RoomInfo Dungeon::getRoomInfo(num room_index) const noexcept {
@@ -124,7 +130,7 @@ RoomInfo Dungeon::getRoomInfo(num room_index) const noexcept {
     auto adj_rooms = getAdjacencyList(room_index);
 
     // Проверяем, посещалась ли эта комната
-    if (visits_.contains(room_index)) {
+    if (getRoom(room_index).isVisited()) {
         auto res = rooms_list_[room_index].getResources();
 
         return RoomInfo(room_index, adj_rooms, res);
@@ -133,7 +139,7 @@ RoomInfo Dungeon::getRoomInfo(num room_index) const noexcept {
     // Если комната не посещалась, то возможно она является видимой,
     // т.е смежной с одной из посещенных комнат
     for (auto index : adj_rooms) {
-        if (visits_.contains(index)) {
+        if (getRoom(index).isVisited()) {
             return RoomInfo(room_index, adj_rooms);
         }
     }
@@ -160,6 +166,6 @@ num Dungeon::getCountRooms() const noexcept {
 
 num Dungeon::getCountPaths() const noexcept {
     // В списке смежностей хранятся пары в двух направлениях
-    return adjacency_list_.size() / 2;
+    return adjacency_list_.size();
 }
 

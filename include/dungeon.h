@@ -44,8 +44,7 @@ struct RoomInfo {
 class Dungeon {
 private:
     std::vector<Room> rooms_list_;
-    std::vector<std::pair<num, num>> adjacency_list_;
-    std::set<num> visits_;
+    std::vector<std::pair<num, std::vector<num>>> adjacency_list_;
     Person person_;
     Resources prices_ = Resources(DEFAULT_IRON_COST, DEFAULT_GOLD_COST, DEFAULT_GEMS_COST, DEFAULT_EXP_COST);
 
@@ -55,6 +54,7 @@ public:
     void loadDungeon(std::string path);
 
     Room& getRoom(num room_index);
+    const Room& getRoom(num room_index) const; // константное поле доступа к объекту Room из списка комнат
     std::vector<num> getAdjacencyList(num room_index) const noexcept; // получаем список соседних комнат, в которые персонаж может попасть
     RoomInfo getRoomInfo(num room_index) const noexcept;
 
