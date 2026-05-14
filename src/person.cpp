@@ -16,17 +16,17 @@ Person::Person(num foods) noexcept : count_foods_(foods){
 }
 
 void Person::result(Resources& costs) noexcept {
-    std::cout << "result " << static_cast<int>(resources_["iron"]) << " ";
-    std::cout << static_cast<int>(resources_["gold"]) << " ";
-    std::cout << static_cast<int>(resources_["gems"]) << " ";
-    std::cout << static_cast<int>(resources_["exp"]) << " ";
+    Logger::file() << "result " << static_cast<int>(resources_["iron"]) << " ";
+    Logger::file() << static_cast<int>(resources_["gold"]) << " ";
+    Logger::file() << static_cast<int>(resources_["gems"]) << " ";
+    Logger::file() << static_cast<int>(resources_["exp"]) << " ";
 
     int sum = resources_["iron"] * costs["iron"] +
             resources_["gold"] * costs["gold"] +
             resources_["gems"] * costs["gems"] +
             resources_["exp"] * costs["exp"];
 
-    std::cout << sum << std::endl;
+    Logger::file() << sum << std::endl;
 
 }
 
