@@ -22,7 +22,9 @@ void Dungeon::loadDungeon(std::string path) {
         throw std::runtime_error("Could not open settings file");
     }
 
+    // ===============================================================================================
     // В первой строке должно быть одно число N - количество комнат в подземелье (не считая начальную)
+    // ===============================================================================================
     std::getline(settings_file, line);
     ss = std::stringstream(line);
 
@@ -39,13 +41,25 @@ void Dungeon::loadDungeon(std::string path) {
         std::getline(settings_file, line);
         ss = std::stringstream(line);
 
+        // ===============================
         // Первый параметр - номер вершины
+        // ===============================
         if (ss >> member_line) {
             std::from_chars(member_line.data(), member_line.data() + member_line.size(), vertex_id);
         }
 
+        // =======================================
         // Второй параметр - список смежных вершин
+        // =======================================
         ss >> member_line;
+
+        // Проверяем, чтобы не было лишних символов
+        for(auto ch : member_line) {
+            if(!std::isdigit(ch) && ch != ',') {
+                throw std::runtime_error(line);
+            }
+        }
+        
         while (!member_line.empty()) {
             num ind;
 
@@ -55,7 +69,9 @@ void Dungeon::loadDungeon(std::string path) {
             vertex_list.push_back(ind);
         }
 
+        // =================================================================
         // Остальные четыре параметра - количество каждого ресурса в комнате
+        // =================================================================
         std::vector<num> resources_cost;
         resources_cost.reserve(4);
         for (auto j = 0; j < 4; j++) {
@@ -78,7 +94,9 @@ void Dungeon::loadDungeon(std::string path) {
         adjacency_list_.push_back({vertex_id, vertex_list});
     }
 
+    // ==================================================
     // Считываем количество еды у персонажа и создаем его
+    // ==================================================
     std::getline(settings_file, line);
     ss = std::stringstream(line);
 
@@ -88,7 +106,9 @@ void Dungeon::loadDungeon(std::string path) {
     }
     person_ = Person(count_foods);
 
+    // ==============================================================
     // В конце - целевой ресурс, т.е его стоимость увеличена в 2 раза
+    // ==============================================================
     ss >> member_line;
     prices_[member_line] *= 2;
 
