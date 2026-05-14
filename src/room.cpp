@@ -1,6 +1,5 @@
 #include "room.h"
-
-#include <ext/concurrence.h>
+#include "logger.h"
 
 Room::Room(num id, Resources resources) : id_(id), resources_(resources) {
 #ifdef DEBUG
@@ -47,31 +46,31 @@ bool Room::isCollected() const noexcept {
 void Room::getState() noexcept {
     // Выводим состояния для всех комнат, кроме начальной
     if (id_) {
-        std::cout << "state " << static_cast<int>(id_) << " ";
+        Logger::file() << "state " << static_cast<int>(id_) << " ";
 
         // Если персонаж забрал ресурс, будет отображаться "_"
         if (!collected_list_.count("iron")) {
-            std::cout << static_cast<int>(resources_["iron"]) << " ";
+            Logger::file() << static_cast<int>(resources_["iron"]) << " ";
         } else {
-            std::cout << "_ ";
+            Logger::file() << "_ ";
         }
 
         if (!collected_list_.contains("gold")) {
-            std::cout << static_cast<int>(resources_["gold"]) << " ";
+            Logger::file() << static_cast<int>(resources_["gold"]) << " ";
         } else {
-            std::cout << "_ ";
+            Logger::file() << "_ ";
         }
 
         if (!collected_list_.contains("gems")) {
-            std::cout << static_cast<int>(resources_["gems"]) << " ";
+            Logger::file() << static_cast<int>(resources_["gems"]) << " ";
         } else {
-            std::cout << "_ ";
+            Logger::file() << "_ ";
         }
 
         if (!collected_list_.contains("exp")) {
-            std::cout << static_cast<int>(resources_["exp"]) << std::endl;
+            Logger::file() << static_cast<int>(resources_["exp"]) << std::endl;
         } else {
-            std::cout << "_" << std::endl;
+            Logger::file() << "_" << std::endl;
         }
     }
 }

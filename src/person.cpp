@@ -1,5 +1,6 @@
 #include "room.h"
 #include "person.h"
+#include "logger.h"
 
 #include <iostream>
 
@@ -31,7 +32,7 @@ void Person::result(Resources& costs) noexcept {
 
 void Person::enter(Room& next_room) noexcept {
     current_room_ = next_room.getId();
-    std::cout << "go " << static_cast<int>(current_room_) << std::endl;
+    Logger::file() << "go " << static_cast<int>(current_room_) << std::endl;
     next_room.visite();
 
     count_foods_--;
@@ -39,9 +40,7 @@ void Person::enter(Room& next_room) noexcept {
 
 void Person::collect(Room& current_room, const std::string& name_resource) noexcept {
 
-    num count_resources = 0;
-
-    std::cout << "collect " << name_resource << std::endl;
+    Logger::file() << "collect " << name_resource << std::endl;
     // Проверяем, брал ли персонаж в этой комнате ресурсы, или нет
     if (current_room.isCollected()) {
         count_foods_--;
