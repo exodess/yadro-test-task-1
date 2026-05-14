@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "resources.h"
 
-TEST(TestTask1, Resources_Test) {
+TEST(FunctionalityTest, Resources_Test) {
     Resources res_default;
     Resources res_users = Resources(1, 2, 5, 19);
 

@@ -3,14 +3,14 @@
 #include "bot.h"
 #include "dungeon.h"
 
-TEST(TestTask1, Dungeon_LoadDungeon_Test_With_Throw) {
+TEST(FunctionalityTest, Dungeon_LoadDungeon_Test_With_Throw) {
     std::string test_file = "...";
 
     Dungeon dungeon;
     ASSERT_ANY_THROW(dungeon.loadDungeon(test_file));
 }
 
-TEST(TestTask1, Dungeon_LoadDungeon_Test_1) {
+TEST(FunctionalityTest, Dungeon_LoadDungeon_Test_1) {
     std::string test_file = "in1_success.txt";
 
     Dungeon dungeon;
