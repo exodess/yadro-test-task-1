@@ -32,10 +32,6 @@ public:
 
     // Поле доступа к приватным членам класса через []
     num& operator[](const std::string& name) noexcept {
-        if (!resources_.contains(name)) {
-            throw std::logic_error("Resource " + name + "don't exists");
-        }
-
         return resources_[name];
     }
 };
